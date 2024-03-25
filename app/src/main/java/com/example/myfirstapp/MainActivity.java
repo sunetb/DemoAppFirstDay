@@ -1,6 +1,8 @@
 package com.example.myfirstapp;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -46,11 +48,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        goodmorning.setText("Hello " + userInputText);
        MyData.getInstance().myName = "Hello " + userInputText;
 
-       Thread background = new Thread (new Runnable(){
+
+       //Spawn new background thread for doing network traffic
+        Thread background = new Thread (new Runnable(){
            public void run(){
-               String data = readURL("https://www.ruc.dk");
+               String data = readURL("https://raw.githubusercontent.com/sunetb/U/master/greeting.txt");
                System.out.println(data);
-               goodmorning.setText(data);
+
+               //post the code for updating the View in the main thread
+               new Handler(Looper.getMainLooper()).post(new Runnable() {
+                   @Override
+                   public void run() {
+                       goodmorning.setText(data);
+                   }
+               });
+
            }
        });
        background.start();
